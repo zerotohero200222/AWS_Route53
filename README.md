@@ -1,112 +1,100 @@
-# AWS_Route53
----
+## 🌐 Terraform Route53 DNS Management
 
-# 🚀 Route 53 Deployment with Terraform and GitHub Actions
-
-This project demonstrates how to automate the deployment and destruction of **AWS Route 53** DNS resources using **Terraform** and **GitHub Actions**. The setup follows **infrastructure-as-code (IaC)** best practices and provides a reusable and environment-specific deployment pattern.
+This repository automates the provisioning of [AWS Route53](https://aws.amazon.com/route53/) resources using [Terraform](https://www.terraform.io/) and GitHub Actions. It supports structured environments (e.g., `dev`, `uat`, `prod`) with a remote S3 backend for state management.
 
 ---
 
+### 🚀 Features
 
-##  Key Features
-
-###  Terraform for AWS Infrastructure
-
-* Uses **Terraform** to manage Route 53 hosted zones and DNS records.
-* Configurations are **environment-specific**, defined through the `variables.tfvars` file.
-
-###  GitHub Actions CI/CD
-
-* Automates Terraform actions (`apply` ) using GitHub Actions workflows.
-* Triggered **manually** through GitHub UI with a selectable input for either deployment or destruction.
-* Uses **AWS credentials stored securely** in GitHub Secrets.
-* Supports dynamic resource provisioning and environment-based configurations.
+* ✅ Automated Route53 zone and DNS record creation
+* 🪣 Remote state backend using encrypted versioned S3
+* 🔐 Secure secrets management via GitHub Secrets
+* ✅ Manual approval step for apply (environment-based)
+* 📦 Modular environment support: Dev, UAT, Prod
+* 💰 Cost estimation summary (based on DNS pricing)
+* 🧪 CI/CD integrated with GitHub Actions
 
 ---
 
-##  How It Works
+### 📦 Prerequisites
 
-###  Terraform Configuration
+Before using this repository, ensure the following:
 
-* The configuration includes reusable resource definitions such as:
+* AWS account with IAM access
+* Terraform CLI (`>= 1.3.0`)
+* GitHub Secrets configured:
 
-  * Route 53 hosted zones.
-  * A-record or CNAME DNS entries.
-  * Dynamic naming using `random_string` or `random_pet` resources.
-* Variables are defined in `variables.tf` and values set in `variables.tfvars` for flexibility.
-
-###  CI/CD Workflow
-
-The GitHub Actions workflow performs the following:
-
-1. **Checkout Code**
-   Pulls your repository contents for the workflow to access.
-
-2. **Setup Terraform**
-   Uses the official Terraform GitHub Action to install and initialize Terraform.
-
-3. **Authenticate with AWS**
-   Authenticates with AWS using credentials stored in GitHub Secrets:
-
-   * `AWS_ACCESS_KEY_ID`
-   * `AWS_SECRET_ACCESS_KEY`
-
-4. **Terraform Init**
-   Initializes Terraform and installs required provider plugins.
-
-5. **Terraform Plan (Apply)**
-   Generates an execution plan if `apply` is selected.
-
-6. **Terraform Apply**
-   Applies the plan and deploys Route 53 infrastructure.
----
-
-## 🛠 Setup Guide
-
-### 1. Pre-requisites
-
-* [Terraform CLI](https://www.terraform.io/downloads)
-* AWS account with Route 53 permissions
-* GitHub repository
-
-### 2. GitHub Secrets
-
-In your GitHub repository, navigate to **Settings → Secrets and variables → Actions**, and add:
-
-* `AWS_ACCESS_KEY_ID`
-* `AWS_SECRET_ACCESS_KEY`
-
-### 3. Modify `variables.tfvars`
-
-Update your environment-specific values like:
-
-```hcl
-environment = "dev"
-domain_name = "example.com"
-record_name = "app"
-record_type = "A"
-```
-
-### 4. Run Workflow
-
-1. Go to **Actions** tab in your GitHub repo.
-2. Select **"Terraform Deploy ** workflow.
-3. Click **"Run workflow"**.
-4. Choose  `apply` from the dropdown and run it.
+  * `AWS_ACCESS_KEY_ID`
+  * `AWS_SECRET_ACCESS_KEY`
 
 ---
 
-##  Environments Support
+### 📥 Setup Instructions
 
-You can easily create separate configurations for environments like:
+1. **Clone this repo**
 
-* **Development** (`dev`)
-* **Testing** (`test`)
-* **Production** (`prod`)
+   ```bash
+   git clone https://github.com/your-org/terraform-route53-dns.git
+   cd terraform-route53-dns
+   ```
 
-Each environment can have its own `.tfvars` file and tagging conventions.
+2. **Configure your environment**
+
+   Modify the files under `environments/` to match your AWS settings.
+
+3. **Create the backend S3 bucket (manually or automatically)**
+
+   * The GitHub Action auto-creates the bucket if it doesn't exist.
+
+4. **Push your code to `main` branch**
+
+   The workflow will automatically:
+
+   * Initialize Terraform
+   * Plan changes
+   * Upload plan as an artifact
+   * Wait for manual approval for apply
 
 ---
+
+### 🔁 GitHub Actions Workflow
+
+This repository includes a workflow to:
+
+* Automatically run `terraform plan` on every push to `main`
+* Display an estimated cost breakdown
+* Apply changes after manual approval via GitHub Environments
+
+---
+
+### 📘 Example Use Case
+
+This project is ideal for:
+
+* Hosting domain records in Route53
+* Managing records like `A`, `CNAME`, `TXT`, etc.
+* Automating DNS updates per environment using GitOps
+
+---
+
+### 🧼 Cleanup
+
+To delete the Route53 resources:
+
+* Run `terraform destroy -var-file=environments/dev.tfvars` locally
+* Or create a `destroy` branch/workflow as part of CI/CD
+
+---
+
+### 🔒 Security Notes
+
+* No credentials are stored in code
+* All AWS access keys must be stored in GitHub Secrets
+* S3 backend is encrypted and versioned
+
+---
+
+
 
 
 
